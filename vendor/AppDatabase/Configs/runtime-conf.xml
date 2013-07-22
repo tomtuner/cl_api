@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<config>
+    <propel>
+        <datasources>
+            <datasource id="fms">
+                <adapter>oracle</adapter>
+                <connection>
+                    <dsn>oci:dbname=//finsrv13.rit.edu:1521/afm</dsn>
+                    <user>EVR</user>
+                    <password>gSgmxe56</password>
+                    <attributes>
+                    </attributes>
+                    <settings>
+                    </settings>
+                </connection>
+            </datasource>
+        </datasources>
+    </propel>
+</config>

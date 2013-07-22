@@ -1,0 +1,25 @@
+<?php echo $this->doctype();?>
+
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <?php echo $this->headTitle('Center for Campus Life API'); ?>
+        <?php
+        echo $this->headMeta()->appendName('viewport',
+                'width=device-width, initial-scale=1.0')
+        ?>
+        <?php
+        echo $this->plugin('HeadLink');
+        echo $this->plugin('HeadStyle');
+        echo $this->plugin('HeadScript');
+        ?>
+    </head>
+    <body>
+        <!-- Header Here -->
+        <div class="container">
+            <?php echo $this->content;?>
+        </div> <!-- /container -->
+        <!-- Footer Here -->
+        <?php echo $this->inlineScript()?>
+    </body>
+</html>
