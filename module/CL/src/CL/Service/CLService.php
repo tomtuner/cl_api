@@ -53,7 +53,7 @@ class CLService extends \AppCore\Service\AbstractService implements \CL\Service\
            
             $response = curl_exec($session);
 			if (!$response) {
-				print_r("Curl Request Failed Error!");
+				// print_r("Curl Request Failed Error!");
 				// $response=<<<XML
 // 				<error>Request Error!
 // 				</error>
@@ -62,7 +62,7 @@ class CLService extends \AppCore\Service\AbstractService implements \CL\Service\
 		  		$response .= "<error>\n";
 
 	      	    $response .= "</error>\n";
-			    print_r($response);
+			    // print_r($response);
 				return $response;
 			}
             return $response;
@@ -92,9 +92,10 @@ class CLService extends \AppCore\Service\AbstractService implements \CL\Service\
             $decoded    = $this -> xml2array($xmlData);
             $events     = $this -> processArray($decoded);
            
-            print "<pre>";
-            print var_dump($events);
-            print "</pre>";        
+            // print "<pre>";
+            // print var_dump($events);
+            // print "</pre>";
+			return $events;        
     }
 	
     private function getGUID() {
@@ -149,132 +150,161 @@ class CLService extends \AppCore\Service\AbstractService implements \CL\Service\
 	}
 	
     private function processArray($in){
-            $pageData               = $in['results']['page'];
-            $itemData               = $in['results']['page']['items'];
-            $returnData             = NULL;
-           
-            foreach($itemData as $key => $val){
-                    $holder = $itemData[$key];                     
-                   
-                    switch($key){
-                            case "event":
-                                   
-                            break;                                 
-                                   
-                            case "member":
-                                    $curmem     = array();
-                                    $moc            = 0;
-                                    $start          = -1;
-                                    $reccnt         = intval($pageData['pageSize']) - 1;                                   
-                                                                   
-                                    for($i=$start;$i<$reccnt;$i++){                                
-                                            if($i == -1){                                                  
-                                                    $memrecord      = $holder;
-                                            } else {
-                                                    $memrecord      = $holder[$i];                                                         
-                                            }
-                                           
-                                            $pcnt                                           = 0;
-                                            $positions                                      = $memrecord['positions']['position'];                                                                                         
-                                            $curmem[$moc]                           = array();                     
-                                            $curmem[$moc]['position']       = array();
-                                            $curmem[$moc]['position'][$pcnt] = array();
-                                           
-                                            foreach($positions as $pk => $pv){                                                                                                             
-                                                    if(!is_numeric($pk)){                                                          
-                                                            $curmem[$moc]['position'][$pcnt]['pos_' . $pk] = $pv;
-                                                    } else {                                                               
-                                                            $pos = $positions[$pk];
-                                                            $pcnt++;
-                                                           
-                                                            foreach($pos as $ppk => $ppv){
-                                                                    $curmem[$moc]['position'][$pcnt]['pos_' . $ppk] = $ppv;
-                                                            }                                                                                                                      
-                                                    }                                                      
-                                            }
-                                           
-                                            foreach($memrecord as $hk => $hv){
-                                                    if(!is_numeric($hk) && $hk != "positions"){
-                                                            $curmem[$moc][$hk] = $hv;                                                              
-                                                    }
-                                            }
-                                           
-                                            $moc++;
-                                    }                                                                              
-                           
-                                    return $curmem;
-                            break;
-                                   
-                            case "membership":
-                                   
-                            break;
-                           
-                            case "organization":
-                                    $curorg     = array();
-                                    $coc            = 0;
-                                    $start          = -1;
-                                    $reccnt         = intval($pageData['totalItems']) - 1;                                 
-                                                                   
-                                    for($i=$start;$i<$reccnt;$i++){                                
-                                            if($i == -1){                                                  
-                                                    $orgrecord      = $holder;
-                                            } else {
-                                                    $orgrecord      = $holder[$i];                                                                                         
-                                            }
-                                           
-                                            $address        = $orgrecord['addresses']['address'];
-                                            $category       = $orgrecord['categories']['category'];
-                                            $customfld      = $orgrecord['customfields']['customfield'];   
-                                            array_splice($orgrecord, 0, 3);        
-                                           
-                                            $getcf          = false;
-                                            $year           = "";
-                                           
-                                            foreach($customfld as $kcf => $vcf){
-                                                    if($kcf == "name"){
-                                                            if($vcf == "Year Founded:"){
-                                                                    $getcf = true;
-                                                            }
-                                                    }
-                                                           
-                                                    if($getcf && $kcf == "values"){
-                                                            $year = $customfld[$kcf]["string"];
-                                                            break;
-                                                    }
-                                            }
-                                                                                           
-                                            $curorg[$coc] = array();
-                                           
-                                            foreach($address as $ak => $av){
-                                                    $curorg[$coc]['adr_' . $ak] = $av;
-                                            }
-                                           
-                                            foreach($category as $ck => $cv){
-                                                    $curorg[$coc]['cat_' . $ck] = $cv;
-                                            }
-                                           
-                                            foreach($orgrecord as $hk => $hv){
-                                                    if(!is_numeric($hk)){
-                                                            if($hk == "description"){
-                                                                    $hv = htmlspecialchars($hv);
-                                                            }
-                                                            $curorg[$coc][$hk] = $hv;                                                              
-                                                    }
-                                                   
-                                            }
-                                           
-                                            if($year != ""){
-                                                    $curorg[$coc]['year'] = $year;
-                                            }
-                                            $coc++;
-                                    }                                                                              
-                           
-                                    return $curorg;        
-                            break;                                 
-                             
-                    }
-            }      
+		var_dump($in);
+            // $pageData               = $in['results']['page'];
+        //     $itemData               = $in['results']['page']['items'];
+        //     $returnData             = NULL;
+        //    
+        //     foreach($itemData as $key => $val){
+        //             $holder = $itemData[$key];                     
+        //            
+        //             switch($key){
+        //                     case "event":
+        //                            
+        //                     break;                                 
+        //                            
+        //                     case "member":
+        //                             $curmem     = array();
+        //                             $moc            = 0;
+        //                             $start          = -1;
+        //                             $reccnt         = intval($pageData['pageSize']) - 1;                                   
+        //                                                            
+        //                             for($i=$start;$i<$reccnt;$i++){                                
+        //                                     if($i == -1){                                                  
+        //                                             $memrecord      = $holder;
+        //                                     } else {
+        //                                             $memrecord      = $holder[$i];                                                         
+        //                                     }
+        //                                    
+        //                                     $pcnt                                           = 0;
+        //                                     $positions                                      = $memrecord['positions']['position'];                                                                                         
+        //                                     $curmem[$moc]                           = array();                     
+        //                                     $curmem[$moc]['position']       = array();
+        //                                     $curmem[$moc]['position'][$pcnt] = array();
+        //                                    
+        //                                     foreach($positions as $pk => $pv){                                                                                                             
+        //                                             if(!is_numeric($pk)){                                                          
+        //                                                     $curmem[$moc]['position'][$pcnt]['pos_' . $pk] = $pv;
+        //                                             } else {                                                               
+        //                                                     $pos = $positions[$pk];
+        //                                                     $pcnt++;
+        //                                                    
+        //                                                     foreach($pos as $ppk => $ppv){
+        //                                                             $curmem[$moc]['position'][$pcnt]['pos_' . $ppk] = $ppv;
+        //                                                     }                                                                                                                      
+        //                                             }                                                      
+        //                                     }
+        //                                    
+        //                                     foreach($memrecord as $hk => $hv){
+        //                                             if(!is_numeric($hk) && $hk != "positions"){
+        //                                                     $curmem[$moc][$hk] = $hv;                                                              
+        //                                             }
+        //                                     }
+        //                                    
+        //                                     $moc++;
+        //                             }                                                                              
+        //                    
+        //                             return $curmem;
+        //                     break;
+        //                            
+        //                     case "membership":
+        //                            
+        //                     break;
+        //                    
+        //                     case "organization":
+        //                             $curorg     = array();
+        //                             $coc            = 0;
+        //                             $start          = -1;
+        //                             $reccnt         = intval($pageData['totalItems']) - 1;                                 
+        //                                                            
+        //                             for($i=$start;$i<$reccnt;$i++){                                
+        //                                     if($i == -1){                                                  
+        //                                             $orgrecord      = $holder;
+        //                                     } else {
+        //                                             $orgrecord      = $holder[$i];                                                                                         
+        //                                     }
+        //                                    
+        //                                     $address        = $orgrecord['addresses']['address'];
+        //                                     $category       = $orgrecord['categories']['category'];
+        //                                     $customfld      = $orgrecord['customfields']['customfield'];   
+        //                                     array_splice($orgrecord, 0, 3);        
+        //                                    
+        //                                     $getcf          = false;
+        //                                     $year           = "";
+        //                                    
+        //                                     foreach($customfld as $kcf => $vcf){
+        //                                             if($kcf == "name"){
+        //                                                     if($vcf == "Year Founded:"){
+        //                                                             $getcf = true;
+        //                                                     }
+        //                                             }
+        //                                                    
+        //                                             if($getcf && $kcf == "values"){
+        //                                                     $year = $customfld[$kcf]["string"];
+        //                                                     break;
+        //                                             }
+        //                                     }
+        //                                                                                    
+        //                                     $curorg[$coc] = array();
+        //                                    
+        //                                     foreach($address as $ak => $av){
+        //                                             $curorg[$coc]['adr_' . $ak] = $av;
+        //                                     }
+        //                                    
+        //                                     foreach($category as $ck => $cv){
+        //                                             $curorg[$coc]['cat_' . $ck] = $cv;
+        //                                     }
+        //                                    
+        //                                     foreach($orgrecord as $hk => $hv){
+        //                                             if(!is_numeric($hk)){
+        //                                                     if($hk == "description"){
+        //                                                             $hv = htmlspecialchars($hv);
+        //                                                     }
+        //                                                     $curorg[$coc][$hk] = $hv;                                                              
+        //                                             }
+        //                                            
+        //                                     }
+        //                                    
+        //                                     if($year != ""){
+        //                                             $curorg[$coc]['year'] = $year;
+        //                                     }
+        //                                     $coc++;
+        //                             }                                                                              
+        //                    
+        //                             return $curorg;        
+        //                     break;                                 
+        //                      
+        //             }
+        //     }      
     }
+	
+    /**
+     *  Take a set of Events results from CL and parse into and RSS feed
+     * 
+     * @throws ServiceException 
+     *
+     * @return bool
+     */
+    public function parseEventsIntoRSS($events)
+    {
+		// Create top of XML
+		
+		$root = '<?xml version="1.0" encoding="ISO-8859-1"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">';
+		$root .= '<channel>';
+		$root .= '<title>RIT Events Feed</title>';
+		$root .= '<description>RIT Events</description>';
+		if (!$events)
+		{
+			foreach($events as $event)
+			{
+				$root .= '<item>';
+				$root .= '<item>';
+			}
+		}
+		$root .= '</channel>';
+		$root .= '</rss>';
+		return $root;
+	}
 
     /**
      *  Query the CollegiateLink API
@@ -285,13 +315,14 @@ class CLService extends \AppCore\Service\AbstractService implements \CL\Service\
      */
     public function queryEventsAPI()
     {
-		print_r("Query that CollegiateLink API!");
+		// print_r("Query that CollegiateLink API!");
 		
         //pre-add event
         $this->getEventManager()->trigger(__FUNCTION__ . EventHookType::PRE,
                 $this, array('serviceEntity' => $this->serviceEntity));
-		$this->getEvents();
-                
+		$eventsResults = $this->getEvents();
+		// print_r("Events:");
+		// print_r($eventsResults);
         /*$currentTimestamp = time();
         $apiTimestamp = $this->serviceEntity->getApiTimestamp();
         
@@ -334,62 +365,7 @@ class CLService extends \AppCore\Service\AbstractService implements \CL\Service\
                 array('serviceEntity' => $this->serviceEntity));
                 
 		
-		return true;
-       /* try
-        {
-            //pre-add event
-            $this->getEventManager()->trigger(__FUNCTION__ . EventHookType::PRE,
-                    $this, array('serviceEntity' => $this->serviceEntity));
-                    
-            $currentTimestamp = time();
-            $apiTimestamp = $this->serviceEntity->getApiTimestamp();
-            
-            if (abs($currentTimestamp - $apiTimestamp) > 5) {
-	            throw new ServiceException('Invalid Timestamp');
-            }
-            
-            $requestArray = array(
-			    'responsibleRepresentativeName' => $this->serviceEntity->getResponsibleRepresentativeName(),
-			    'responsibleRepresentativeEmail' => $this->serviceEntity->getResponsibleRepresentativeEmail(),
-			    'responsibleRepresentativePhone' => $this->serviceEntity->getResponsibleRepresentativePhone(),
-			    'eventName' => $this->serviceEntity->getEventName(),
-			    'eventDescription' => $this->serviceEntity->getEventDescription(),
-			    'eventBuildingNumber' => $this->serviceEntity->getEventBuildingNumber(),
-			    'eventRoomNumber' => $this->serviceEntity->getEventRoomNumber(),
-			    'eventOtherLocation' => $this->serviceEntity->getEventOtherLocation(),
-			    'reservationStartTime' => $this->serviceEntity->getReservationStartTime(),
-			    'eventStartTime' => $this->serviceEntity->getEventStartTime(),
-			    'eventEndTime' => $this->serviceEntity->getEventEndTime(),
-			    'reservationEndTime' => $this->serviceEntity->getReservationEndTime(),
-			    'apiTimestamp' => (string)$this->serviceEntity->getApiTimestamp(),
-			    );
-			    
-			$requestArrayString = implode("+", $requestArray);
-			$serverApiSignature = hash_hmac('sha256', $requestArrayString, 'ad22ef55-e1d7-44ed-bfd3-db9482308e15');
-			
-			$clientApiSignature = $this->serviceEntity->getApiSignature();
-			
-			if ($serverApiSignature != $clientApiSignature) {
-				throw new ServiceException('Invalid Signature');
-			}
-			
-			$fmsModel = new \FMS\Model\FMSModel;
-			
-			$wasSuccessful = $fmsModel->create($this->serviceEntity);
-
-            //post-add event
-            $this->getEventManager()->trigger(__FUNCTION__ . EventHookType::POST,
-                    $this,
-                    array('serviceEntity' => $this->serviceEntity));
-                    
-            return $wasSuccessful;
-
-        } 
-        catch(\Exception $e)
-        {
-           throw new ServiceException('Error Processing Submission', $e);
-        }
-	   */
+		return $eventsResults;
     }
 
 }

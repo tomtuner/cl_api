@@ -1,0 +1,54 @@
+<rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0">
+<channel>
+	<title>Alumni Events Feed for RIT Mobile App</title>
+	<description>Upcoming Alumni Events</description>
+	<item>
+		<title>Connecticut Area Alumni Happy Hour</title>
+		<link>
+		https://www.alumniconnections.com/olc/pub/RIT/event/showEventForm.jsp?form_id=155117
+		</link>
+		<description>Refer to website</description>
+		<status>Y</status>
+		<cost>10.00</cost>
+		<cname>Alumni Relations</cname>
+		<cphone>585-475-2586</cphone>
+		<cemail>arevents@rit.edu</cemail>
+		<ctty>585-475-2586</ctty>
+		<location>Hartford, CT</location>
+		<startdate>Jul 25 2013 6:00PM</startdate>
+		<enddate>Jul 25 2013 8:00PM</enddate>
+	</item>
+	<item>
+		<title>2013 Summer SendOff San Francisco CA</title>
+		<link>
+		https://www.alumniconnections.com/olc/pub/RIT/event/showEventForm.jsp?form_id=154865
+		</link>
+		<description>Refer to website</description>
+		<status>Y</status>
+		<cost>0.00</cost>
+		<cname>Alumni Relations</cname>
+		<cphone>585-475-2586</cphone>
+		<cemail>arevents@rit.edu</cemail>
+		<ctty>585-475-2586</ctty>
+		<location>San Francisco, CA</location>
+		<startdate>Jul 25 2013 6:00PM</startdate>
+		<enddate>Jul 25 2013 8:00PM</enddate>
+	</item>
+	  <item>
+	  <title>Cuba RIT Travel Program</title>
+		  <link>
+		  https://www.alumniconnections.com/olc/pub/RIT/event/showEventForm.jsp?form_id=155262
+		  </link>
+		  <description>Refer to website</description>
+		  <status>Y</status>
+		  <cost>3330.00</cost>
+		  <cname>Alumni Relations</cname>
+		  <cphone>585-475-2586</cphone>
+		  <cemail>arevents@rit.edu</cemail>
+		  <ctty>585-475-2586</ctty>
+		  <location>Cuba</location>
+		  <startdate>Jan 13 2014 11:30AM</startdate>
+		  <enddate>Jan 20 2014 9:30AM</enddate>
+	  </item>
+  </channel>
+</rss>

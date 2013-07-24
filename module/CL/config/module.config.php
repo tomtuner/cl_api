@@ -4,13 +4,15 @@ return array(
     'controllers' => array(
         'invokables' => array(
             'CL\Controller\Index' => 'CL\Controller\IndexController',
+            'CL\Controller\RSS' => 'CL\Controller\RSSController',
+			
         ),
     ),
     
      // The following section is new and should be added to your file
     'router' => array(
         'routes' => array(
-            'FMS-index' => array(
+            'CL-index' => array(
                 'type'    => 'segment',
                 'options' => array(
                     'route'    => '/cl-api/cl[/:action][/:id]',
@@ -20,6 +22,20 @@ return array(
                      ),
                       'defaults' => array(
                         'controller' => 'CL\Controller\Index',
+                        'action'     => 'index',
+                    ),
+                ),
+            ),
+            'RSS-index' => array(
+                'type'    => 'segment',
+                'options' => array(
+                    'route'    => '/cl-api/cl/rss[/:action][/:id]',
+		      'constraints' => array(
+                        'action' => '[a-zA-Z][a-zA-Z0-9_-]*',
+                        'id'     => '[0-9]+',
+                     ),
+                      'defaults' => array(
+                        'controller' => 'CL\Controller\RSS',
                         'action'     => 'index',
                     ),
                 ),

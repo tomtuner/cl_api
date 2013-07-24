@@ -52,13 +52,11 @@ class IndexController extends AbstractActionController
     public function indexAction()
     {
 	try {
-    	// return $this->redirect()->toUrl('http://campuslife.rit.edu/');
     	print_r($this->getRequest()->getQuery());
 		
         $sE = new \CL\Service\Entity\CLServiceEntity($this->getRequest()->getQuery());
-
         $s = new \CL\Service\CLService($sE);
-         
+    
         $wasSuccessful = $s->queryEventsAPI();
         
         if ($wasSuccessful) {
@@ -75,7 +73,7 @@ class IndexController extends AbstractActionController
         
     } catch(\Exception $e)
 	    {
-	        throw new ControllerException('Error Submitting FMS Request', $e);
+	        throw new ControllerException('Error Submitting Events API Request', $e);
 	    }
     }
     
