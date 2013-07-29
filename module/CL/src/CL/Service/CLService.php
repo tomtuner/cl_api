@@ -15,9 +15,9 @@ use AppCore\Service\EventHookType;
 class CLService extends \AppCore\Service\AbstractService implements \CL\Service\iCLService
 {
 	// Constants
-    private $apiKeyConst = "YOUR API KEY - The one from CL like ABC12SAGHEHWAA";
-    private $apiUserConst = "YOUR API USER - Like User-01";
-    private $ipAddrConst = "YOUR IP GIVEN TO CL";
+    private $apiKeyConst = "74fcd9096f464af99e5b77dd48ceb00e";
+    private $apiUserConst = "rit-ws-01";
+    private $ipAddrConst = "129.21.35.181";
 	private $baseURL = "https://thelink.rit.edu/ws/";
 	
     /**
@@ -46,7 +46,8 @@ class CLService extends \AppCore\Service\AbstractService implements \CL\Service\
             }
            
             //echo $url . "\r\n";
-           
+			// print_r(BASE_URL);
+            print_r($url);
             $session = curl_init($url);
             curl_setopt($session, CURLOPT_HEADER, false);
             curl_setopt($session, CURLOPT_RETURNTRANSFER, true);
@@ -62,7 +63,7 @@ class CLService extends \AppCore\Service\AbstractService implements \CL\Service\
 		  		$response .= "<error>\n";
 
 	      	    $response .= "</error>\n";
-			    // print_r($response);
+			    print_r($response);
 				return $response;
 			}
             return $response;
@@ -82,13 +83,17 @@ class CLService extends \AppCore\Service\AbstractService implements \CL\Service\
            
             // $parameters['pagesize'] = 500;
            
-            $url            = $baseUrl = "event/list";
+            $url = $this-> baseURL . "event/list";
+			// print_r($parameters);
+			
             $xmlData        = simplexml_load_string($this->fetchData($url, $parameters));
            	if (!$xmlData) {
 				print_r("XML DATA!\n");
 				print_r($xmlData);
 
            	}
+			// print_r($xmlData);
+			
             $decoded    = $this -> xml2array($xmlData);
             $events     = $this -> processArray($decoded);
            
@@ -150,7 +155,7 @@ class CLService extends \AppCore\Service\AbstractService implements \CL\Service\
 	}
 	
     private function processArray($in){
-		var_dump($in);
+		print_r($in);
             // $pageData               = $in['results']['page'];
         //     $itemData               = $in['results']['page']['items'];
         //     $returnData             = NULL;
