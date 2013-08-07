@@ -18,6 +18,7 @@ class CLService extends \AppCore\Service\AbstractService implements \CL\Service\
     private $apiKeyConst = "74fcd9096f464af99e5b77dd48ceb00e";
     private $apiUserConst = "rit-ws-01";
     private $ipAddrConst = "129.21.35.181";
+	//private $baseURL = "https://thelink.rit.edu/api/";
 	private $baseURL = "https://thelink.rit.edu/ws/";
 	
     /**
@@ -66,6 +67,7 @@ class CLService extends \AppCore\Service\AbstractService implements \CL\Service\
 			    print_r($response);
 				return $response;
 			}
+			//print_r($response);
             return $response;
     }
 	
@@ -84,6 +86,7 @@ class CLService extends \AppCore\Service\AbstractService implements \CL\Service\
             // $parameters['pagesize'] = 500;
            
             $url = $this-> baseURL . "event/list";
+			//$url = $this->baseURL . "test";
 			// print_r($parameters);
 			
             $xmlData        = simplexml_load_string($this->fetchData($url, $parameters));
@@ -121,8 +124,15 @@ class CLService extends \AppCore\Service\AbstractService implements \CL\Service\
    
     private function buildHash() {
             $guid = $this -> getGUID();
-            $utc = (string)round(microtime(true) * 1000);
-
+            $utc = round(microtime(true) * 1000);
+            $utc = (int) $utc;
+			
+			print "TIME1:\n";
+			print_r($utc);
+			
+			//print "TIME2:\n";
+			//print_r($utc2);
+			
             $prehash = $this -> apiUserConst . $this -> ipAddrConst . $utc . $guid . $this -> apiKeyConst;
             $hash = (string)md5($prehash);
             $parameters = array();
