@@ -26,8 +26,11 @@ class RSSController extends AbstractActionController
         $s = new \CL\Service\CLService($sE);
          
         $wasSuccessful = $s->queryEventsAPI();
-        $wasSuccessful = true;
-        if ($wasSuccessful) {
+		// print_r("Was Successful :");
+		
+		// print_r($wasSuccessful);
+        // $wasSuccessful = true;
+        if (true) {
 			// header("Content-Type: text/plain");
 			
 			$xml = $s->parseEventsIntoRSS($wasSuccessful);

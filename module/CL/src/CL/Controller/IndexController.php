@@ -52,13 +52,18 @@ class IndexController extends AbstractActionController
     public function indexAction()
     {
 	try {
-    	print_r($this->getRequest()->getQuery());
+    	// print_r($this->getRequest()->getQuery());
 		
         $sE = new \CL\Service\Entity\CLServiceEntity($this->getRequest()->getQuery());
         $s = new \CL\Service\CLService($sE);
     
         $wasSuccessful = $s->queryEventsAPI();
-        
+		// print_r($wasSuccessful);
+        $decoded    = $s -> xml2array($wasSuccessful);
+		
+		// Put the events into an array
+        $events     = $s -> processArray($decoded);
+       
         if ($wasSuccessful) {
 	        $result = new JsonModel(array(
     			'success'=>true,

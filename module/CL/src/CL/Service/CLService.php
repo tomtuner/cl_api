@@ -48,7 +48,7 @@ class CLService extends \AppCore\Service\AbstractService implements \CL\Service\
            
             //echo $url . "\r\n";
 			// print_r(BASE_URL);
-            print_r($url);
+            // print_r($url);
             $session = curl_init($url);
             curl_setopt($session, CURLOPT_HEADER, false);
             curl_setopt($session, CURLOPT_RETURNTRANSFER, true);
@@ -64,10 +64,10 @@ class CLService extends \AppCore\Service\AbstractService implements \CL\Service\
 		  		$response .= "<error>\n";
 
 	      	    $response .= "</error>\n";
-			    print_r($response);
+			    // print_r($response);
 				return $response;
 			}
-			//print_r($response);
+			 // print_r($response);
             return $response;
     }
 	
@@ -89,21 +89,24 @@ class CLService extends \AppCore\Service\AbstractService implements \CL\Service\
 			//$url = $this->baseURL . "test";
 			// print_r($parameters);
 			
-            $xmlData        = simplexml_load_string($this->fetchData($url, $parameters));
+			$fetchData = $this->fetchData($url, $parameters);
+			print_r($fetchData);
+            $xmlData        = simplexml_load_string($fetchData);
            	if (!$xmlData) {
 				print_r("XML DATA!\n");
 				print_r($xmlData);
 
            	}
+			// Data ready to load into xml2array
 			// print_r($xmlData);
 			
-            $decoded    = $this -> xml2array($xmlData);
-            $events     = $this -> processArray($decoded);
+            // $decoded    = $this -> xml2array($xmlData);
+            // $events     = $this -> processArray($decoded);
            
-            // print "<pre>";
-            // print var_dump($events);
-            // print "</pre>";
-			return $events;        
+             // print "<pre>";
+             // print var_dump($events);
+             // print "</pre>";
+			return $xmlData;        
     }
 	
     private function getGUID() {
@@ -127,8 +130,8 @@ class CLService extends \AppCore\Service\AbstractService implements \CL\Service\
             $utc = round(microtime(true) * 1000);
             $utc = (int) $utc;
 			
-			print "TIME1:\n";
-			print_r($utc);
+			// print "TIME1:\n";
+			// print_r($utc);
 			
 			//print "TIME2:\n";
 			//print_r($utc2);
@@ -152,7 +155,7 @@ class CLService extends \AppCore\Service\AbstractService implements \CL\Service\
 	
 	// Convert XMLResponse to Array
 	
-    private function xml2array(\SimpleXMLElement $parent) {
+    public function xml2array(\SimpleXMLElement $parent) {
             $array = array();
 
         foreach ($parent as $name => $element) {
@@ -164,8 +167,8 @@ class CLService extends \AppCore\Service\AbstractService implements \CL\Service\
         return $array;
 	}
 	
-    private function processArray($in){
-		print_r($in);
+    public function processArray($events){
+		// print_r($in);
             // $pageData               = $in['results']['page'];
         //     $itemData               = $in['results']['page']['items'];
         //     $returnData             = NULL;
@@ -290,7 +293,8 @@ class CLService extends \AppCore\Service\AbstractService implements \CL\Service\
         //                     break;                                 
         //                      
         //             }
-        //     }      
+        //     }  
+		return $events;    
     }
 	
     /**
@@ -316,6 +320,12 @@ class CLService extends \AppCore\Service\AbstractService implements \CL\Service\
 				$root .= '<item>';
 			}
 		}
+		$root .= $events;
+		// $xml = new \SimpleXMLElement('<root/>');
+// 		array_flip($events);
+// 		array_walk_recursive($events, array ($xml, 'addChild'));
+// 		$root .= $xml->asXML();
+// 		
 		$root .= '</channel>';
 		$root .= '</rss>';
 		return $root;
