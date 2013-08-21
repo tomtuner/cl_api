@@ -24,34 +24,41 @@ class RSSController extends AbstractActionController
         $sE = new \CL\Service\Entity\CLServiceEntity($this->getRequest()->getQuery());
 
         $s = new \CL\Service\CLService($sE);
-         
-        $wasSuccessful = $s->queryEventsAPI();
+		$startdate = strtotime("-2 day") * 1000;
+		$enddate = strtotime("+30 day") * 1000;
+		// print_r($startdate);
+		// print_r("\n");
+		// print_r($enddate);
+        $wasSuccessful = $s->queryEventsAPI($startdate, $enddate);
 		// print_r("Was Successful :");
 		
-		// print_r($wasSuccessful);
+		 // print_r($wasSuccessful);
         // $wasSuccessful = true;
-        if (true) {
+        if ($wasSuccessful) {
 			// header("Content-Type: text/plain");
 			
 			$xml = $s->parseEventsIntoRSS($wasSuccessful);
-			print_r($xml);
-	        $result = new JsonModel(array(
+			
+			$response = $this->getResponse();
+			$response->setStatusCode(200);
+			$response->setContent($xml);
+			
+			$response->getHeaders()->addHeaders(array('Content-type' => 'text/xml'));
+			return $response;
+	        // $result = new JsonModel(array(
+    			// 'success'=>true,
+    		// ));
+        }else {
+			$result = new JsonModel(array(
     			'success'=>true,
-    		));
-        } else {
-	        $result = new JsonModel(array(
-    			'success'=>false,
-    		));
+		    ));
         }
- 
         return $result;
-        
     } catch(\Exception $e)
 	    {
 	        throw new ControllerException('Error Submitting FMS Request', $e);
 	    }
     }
-    
 }
 
 ?>

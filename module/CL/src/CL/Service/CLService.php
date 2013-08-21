@@ -71,15 +71,15 @@ class CLService extends \AppCore\Service\AbstractService implements \CL\Service\
             return $response;
     }
 	
-    private function getEvents(){
+    private function getEvents($startdate, $enddate){
             $time = time();
            
             ob_end_flush();
             ob_start();
 
             $parameters                     = $this -> buildHash();
-			$parameters['startdate']		= $this->serviceEntity->getStartDate();
-			$parameters['enddate']		= $this->serviceEntity->getEndDate();
+			$parameters['startdate']		= $startdate;
+			$parameters['enddate']		= $enddate;
 			
             // $parameters['id']               = 64382;
            
@@ -90,7 +90,7 @@ class CLService extends \AppCore\Service\AbstractService implements \CL\Service\
 			// print_r($parameters);
 			
 			$fetchData = $this->fetchData($url, $parameters);
-			print_r($fetchData);
+			// print_r($fetchData);
             $xmlData        = simplexml_load_string($fetchData);
            	if (!$xmlData) {
 				print_r("XML DATA!\n");
@@ -100,9 +100,9 @@ class CLService extends \AppCore\Service\AbstractService implements \CL\Service\
 			// Data ready to load into xml2array
 			// print_r($xmlData);
 			
-            // $decoded    = $this -> xml2array($xmlData);
+            $decoded    = $this -> xml2array($xmlData);
             // $events     = $this -> processArray($decoded);
-           
+			// print_r($decoded);
              // print "<pre>";
              // print var_dump($events);
              // print "</pre>";
@@ -147,7 +147,7 @@ class CLService extends \AppCore\Service\AbstractService implements \CL\Service\
             $parameters['hash'] = $hash;
 
             // Optional Parameters
-            //$parameters['pagesize'] = 500;
+            $parameters['pagesize'] = 500;
             // Max results
 
             return $parameters;
@@ -312,40 +312,123 @@ class CLService extends \AppCore\Service\AbstractService implements \CL\Service\
 		$root .= '<channel>';
 		$root .= '<title>RIT Events Feed</title>';
 		$root .= '<description>RIT Events</description>';
-		if (!$events)
+		// $events = $events['results'];
+		// $events = $events['page'];
+		// $events = $events['items'];
+		$eventsStart = $events->results->page->items;
+		// print_r(count($eventsStart->event));
+		
+		// print_r($eventsStart->event[0]->name);
+		// print_r($eventsStart->event[1]->name);
+		if ($events)
 		{
-			foreach($events as $event)
+			$d = new \DOMDocument('1.0', 'utf-8');
+			
+			//create rss header
+			$rssElement = $d->createElement('rss');
+			$rssElement->setAttribute('version', '2.0');
+			$rssElement->setAttributeNS('http://www.w3.org/2000/xmlns/' ,'xmlns:atom', 'http://www.w3.org/2005/Atom');
+			$rssRoot = $d->appendChild($rssElement);
+			// print_r("Start Here RSS 1");
+			
+			//create channel
+			$c = $rssRoot->appendChild(new \DOMElement('channel'));
+			
+			//add channel title
+			$cT = $c->appendChild(new \DOMElement('title'));
+			$cT->appendChild(new \DOMText('EVR Events Feed'));
+			
+			//add channel description
+			$cD = $c->appendChild(new \DOMElement('description'));
+			$cD->appendChild(new \DOMText('EVR Upcoming Events - Campus Center for Life'));		
+			// print_r("Start Here RSS 2");
+
+
+				
+			for($i = 0; $i < count($eventsStart->event); $i++)
 			{
-				$root .= '<item>';
-				$root .= '<item>';
+				//create item
+				$e = $c->appendChild(new \DOMElement('item'));
+				
+				//add title
+				$title = $e->appendChild(new \DOMElement('title'));
+				$title->appendChild(new \DOMCdataSection($eventsStart->event[$i]->name));
+				
+				$link = $e->appendChild(new \DOMElement('link'));
+				
+				//add description
+				$description = $e->appendChild(new \DOMElement('description'));
+				$description->appendChild(new \DOMCdataSection($eventsStart->event[$i]->description));
+				
+				//add status
+				$status = $e->appendChild(new \DOMElement('status'));
+				$status->appendChild(new \DOMText("Y"));
+				
+				//add cost
+				$cost = $e->appendChild(new \DOMElement('cost'));
+				// $cost->appendChild(new \DOMText($r->getEventCost()));
+				
+				//add cname
+				// $cname = $e->appendChild(new \DOMElement('cname'));
+				// $cname->appendChild(new \DOMCdataSection($r->getEventResponsibleRepresentativeName()));
+				
+				//add cphone
+				$cphone = $e->appendChild(new \DOMElement('cphone'));
+				
+				//add cemail
+				$cemail = $e->appendChild(new \DOMElement('cemail'));
+				// $cemail->appendChild(new \DOMCdataSection($r->getEventResponsibleRepresentativeEmailAddress()));
+				
+				//add ctty
+				$ctty = $e->appendChild(new \DOMElement('ctty'));
+
+				//add location
+				$location = $e->appendChild(new \DOMElement('location'));
+				$location->appendChild(new \DOMCdataSection($eventsStart->event[$i]->location));
+				
+				//add start date
+				$startDate = $e->appendChild(new \DOMElement('startdate'));
+				$startDate->appendChild(new \DOMText($eventsStart->event[$i]->startDate));
+				
+				//add end date
+				$endDate = $e->appendChild(new \DOMElement('enddate'));
+				$endDate->appendChild(new \DOMText($eventsStart->event[$i]->endDate));
+				
+				// print_r("Here");
+				// $root .= '<item>';
+// 				$root .= '<title>';
+// 				
+// 				$root .= $eventsStart->event[$i]->name;
+// 				$root .= '</title>';
+// 				
+// 				$root .= '</item>';
 			}
 		}
-		$root .= $events;
+		// $root .= $events;
 		// $xml = new \SimpleXMLElement('<root/>');
 // 		array_flip($events);
 // 		array_walk_recursive($events, array ($xml, 'addChild'));
 // 		$root .= $xml->asXML();
 // 		
-		$root .= '</channel>';
-		$root .= '</rss>';
-		return $root;
+		// $root .= '</channel>';
+		// $root .= '</rss>';
+		return $d->saveXML();
 	}
 
     /**
-     *  Query the CollegiateLink API
+     *  Query the CollegiateLink API 
      * 
      * @throws ServiceException 
      *
-     * @return bool
+     * @return results of API query in XML format
      */
-    public function queryEventsAPI()
+    public function queryEventsAPI($startdate, $enddate)
     {
-		// print_r("Query that CollegiateLink API!");
 		
         //pre-add event
         $this->getEventManager()->trigger(__FUNCTION__ . EventHookType::PRE,
                 $this, array('serviceEntity' => $this->serviceEntity));
-		$eventsResults = $this->getEvents();
+		$eventsResults = $this->getEvents($startdate, $enddate);
 		// print_r("Events:");
 		// print_r($eventsResults);
         /*$currentTimestamp = time();

@@ -16,7 +16,7 @@ interface iCLService
      *
      * @throws ServiceException 
      */
-    public function queryEventsAPI();
+    public function queryEventsAPI($startdate, $enddate);
 }
 
 ?>
