@@ -18,8 +18,10 @@ class CLService extends \AppCore\Service\AbstractService implements \CL\Service\
     private $apiKeyConst = "74fcd9096f464af99e5b77dd48ceb00e";
     private $apiUserConst = "rit-ws-01";
     private $ipAddrConst = "129.21.35.181";
-	//private $baseURL = "https://thelink.rit.edu/api/";
-	private $baseURL = "https://thelink.rit.edu/ws/";
+	
+	// The link for new and debug api
+	private $baseURL = "https://thelink.rit.edu/api/";
+	// private $baseURL = "https://thelink.rit.edu/ws/";
 	
     /**
      * CL Service Entitiy
@@ -52,6 +54,7 @@ class CLService extends \AppCore\Service\AbstractService implements \CL\Service\
             $session = curl_init($url);
             curl_setopt($session, CURLOPT_HEADER, false);
             curl_setopt($session, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($session, CURLOPT_HTTPHEADER, Array("Accept: text/xml"));
            
             $response = curl_exec($session);
 			if (!$response) {
@@ -71,7 +74,7 @@ class CLService extends \AppCore\Service\AbstractService implements \CL\Service\
             return $response;
     }
 	
-    private function getEvents($startdate, $enddate){
+    private function getEvents($startdate, $enddate, $type){
             $time = time();
            
             ob_end_flush();
@@ -79,22 +82,26 @@ class CLService extends \AppCore\Service\AbstractService implements \CL\Service\
 
             $parameters                     = $this -> buildHash();
 			$parameters['startdate']		= $startdate;
-			$parameters['enddate']		= $enddate;
+			$parameters['enddate']			= $enddate;
+			$parameters['type']				= $type;
+			// $parameters['type']				= "campus only";
 			
             // $parameters['id']               = 64382;
            
             // $parameters['pagesize'] = 500;
            
-            $url = $this-> baseURL . "event/list";
+            $url = $this-> baseURL . "events";
 			//$url = $this->baseURL . "test";
 			// print_r($parameters);
 			
 			$fetchData = $this->fetchData($url, $parameters);
 			// print_r($fetchData);
+			
+			// print_r($fetchData);
             $xmlData        = simplexml_load_string($fetchData);
            	if (!$xmlData) {
 				print_r("XML DATA!\n");
-				print_r($xmlData);
+				print_r($fetchData);
 
            	}
 			// Data ready to load into xml2array
@@ -304,32 +311,57 @@ class CLService extends \AppCore\Service\AbstractService implements \CL\Service\
      *
      * @return bool
      */
-    public function parseEventsIntoRSS($events)
+    public function parseEventsIntoRSS($events, $startdate, $enddate)
     {
-		// Create top of XML
 		
+		// Do second query for campus only events
+        $parameters                     = $this -> buildHash();
+		$parameters['startdate']		= $startdate;
+		$parameters['enddate']			= $enddate;
+		// $parameters['type']				= $type;
+		$parameters['type']				= "campus only";
+		
+        // $parameters['id']               = 64382;
+       
+        // $parameters['pagesize'] = 500;
+       
+        $url = $this-> baseURL . "events";		
+		$fetchData = $this->fetchData($url, $parameters);
+		
+		// Create top of XML
 		$root = '<?xml version="1.0" encoding="ISO-8859-1"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">';
 		$root .= '<channel>';
 		$root .= '<title>RIT Events Feed</title>';
 		$root .= '<description>RIT Events</description>';
-		// $events = $events['results'];
-		// $events = $events['page'];
-		// $events = $events['items'];
-		$eventsStart = $events->results->page->items;
-		// print_r(count($eventsStart->event));
 		
-		// print_r($eventsStart->event[0]->name);
-		// print_r($eventsStart->event[1]->name);
-		if ($events)
+        $campusEvents        = simplexml_load_string($fetchData);
+       	if (!$campusEvents) {
+			print_r("XML DATA!\n");
+			print_r($fetchData);
+
+       	}
+		// Data ready to load into xml2array
+		// print_r($xmlData);
+		
+        // $campusEvents    = $this -> xml2array($xmlData)
+		// print_r($campusEvents);
+		
+		$campusEvents	 = $campusEvents->Items;
+		// print_r($campusEvents);
+		
+		$eventsStart = $events->Items;
+		// print_r($eventsStart);
+		
+		$d = new \DOMDocument('1.0', 'utf-8');
+		
+		if ($eventsStart)
 		{
-			$d = new \DOMDocument('1.0', 'utf-8');
 			
 			//create rss header
 			$rssElement = $d->createElement('rss');
 			$rssElement->setAttribute('version', '2.0');
 			$rssElement->setAttributeNS('http://www.w3.org/2000/xmlns/' ,'xmlns:atom', 'http://www.w3.org/2005/Atom');
 			$rssRoot = $d->appendChild($rssElement);
-			// print_r("Start Here RSS 1");
 			
 			//create channel
 			$c = $rssRoot->appendChild(new \DOMElement('channel'));
@@ -345,20 +377,20 @@ class CLService extends \AppCore\Service\AbstractService implements \CL\Service\
 
 
 				
-			for($i = 0; $i < count($eventsStart->event); $i++)
+			for($i = 0; $i < count($eventsStart->Event); $i++)
 			{
 				//create item
 				$e = $c->appendChild(new \DOMElement('item'));
 				
 				//add title
 				$title = $e->appendChild(new \DOMElement('title'));
-				$title->appendChild(new \DOMCdataSection($eventsStart->event[$i]->name));
+				$title->appendChild(new \DOMCdataSection($eventsStart->Event[$i]->EventName));
 				
 				$link = $e->appendChild(new \DOMElement('link'));
 				
 				//add description
 				$description = $e->appendChild(new \DOMElement('description'));
-				$description->appendChild(new \DOMCdataSection($eventsStart->event[$i]->description));
+				$description->appendChild(new \DOMCdataSection($eventsStart->Event[$i]->Description));
 				
 				//add status
 				$status = $e->appendChild(new \DOMElement('status'));
@@ -384,15 +416,15 @@ class CLService extends \AppCore\Service\AbstractService implements \CL\Service\
 
 				//add location
 				$location = $e->appendChild(new \DOMElement('location'));
-				$location->appendChild(new \DOMCdataSection($eventsStart->event[$i]->location));
+				$location->appendChild(new \DOMCdataSection($eventsStart->Event[$i]->LocationName));
 				
 				//add start date
 				$startDate = $e->appendChild(new \DOMElement('startdate'));
-				$startDate->appendChild(new \DOMText($eventsStart->event[$i]->startDate));
+				$startDate->appendChild(new \DOMText($eventsStart->event[$i]->StartDateTime));
 				
 				//add end date
 				$endDate = $e->appendChild(new \DOMElement('enddate'));
-				$endDate->appendChild(new \DOMText($eventsStart->event[$i]->endDate));
+				$endDate->appendChild(new \DOMText($eventsStart->Event[$i]->EndDateTime));
 				
 				// print_r("Here");
 				// $root .= '<item>';
@@ -402,6 +434,57 @@ class CLService extends \AppCore\Service\AbstractService implements \CL\Service\
 // 				$root .= '</title>';
 // 				
 // 				$root .= '</item>';
+			}
+			
+			for($i = 0; $i < count($campusEvents->Event); $i++)
+			{
+				//create item
+				$e = $c->appendChild(new \DOMElement('item'));
+				
+				//add title
+				$title = $e->appendChild(new \DOMElement('title'));
+				$title->appendChild(new \DOMCdataSection($campusEvents->Event[$i]->EventName));
+				
+				$link = $e->appendChild(new \DOMElement('link'));
+				
+				//add description
+				$description = $e->appendChild(new \DOMElement('description'));
+				$description->appendChild(new \DOMCdataSection($campusEvents->Event[$i]->Description));
+				
+				//add status
+				$status = $e->appendChild(new \DOMElement('status'));
+				$status->appendChild(new \DOMText("Y"));
+				
+				//add cost
+				$cost = $e->appendChild(new \DOMElement('cost'));
+				// $cost->appendChild(new \DOMText($r->getEventCost()));
+				
+				//add cname
+				// $cname = $e->appendChild(new \DOMElement('cname'));
+				// $cname->appendChild(new \DOMCdataSection($r->getEventResponsibleRepresentativeName()));
+				
+				//add cphone
+				$cphone = $e->appendChild(new \DOMElement('cphone'));
+				
+				//add cemail
+				$cemail = $e->appendChild(new \DOMElement('cemail'));
+				// $cemail->appendChild(new \DOMCdataSection($r->getEventResponsibleRepresentativeEmailAddress()));
+				
+				//add ctty
+				$ctty = $e->appendChild(new \DOMElement('ctty'));
+
+				//add location
+				$location = $e->appendChild(new \DOMElement('location'));
+				$location->appendChild(new \DOMCdataSection($campusEvents->Event[$i]->LocationName));
+				
+				//add start date
+				$startDate = $e->appendChild(new \DOMElement('startdate'));
+				$startDate->appendChild(new \DOMText($campusEvents->event[$i]->StartDateTime));
+				
+				//add end date
+				$endDate = $e->appendChild(new \DOMElement('enddate'));
+				$endDate->appendChild(new \DOMText($campusEvents->Event[$i]->EndDateTime));
+
 			}
 		}
 		// $root .= $events;
@@ -422,13 +505,13 @@ class CLService extends \AppCore\Service\AbstractService implements \CL\Service\
      *
      * @return results of API query in XML format
      */
-    public function queryEventsAPI($startdate, $enddate)
+    public function queryEventsAPI($startdate, $enddate, $type)
     {
 		
         //pre-add event
         $this->getEventManager()->trigger(__FUNCTION__ . EventHookType::PRE,
                 $this, array('serviceEntity' => $this->serviceEntity));
-		$eventsResults = $this->getEvents($startdate, $enddate);
+		$eventsResults = $this->getEvents($startdate, $enddate, $type);
 		// print_r("Events:");
 		// print_r($eventsResults);
         /*$currentTimestamp = time();

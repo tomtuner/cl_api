@@ -29,7 +29,7 @@ class RSSController extends AbstractActionController
 		// print_r($startdate);
 		// print_r("\n");
 		// print_r($enddate);
-        $wasSuccessful = $s->queryEventsAPI($startdate, $enddate);
+        $wasSuccessful = $s->queryEventsAPI($startdate, $enddate, "public");
 		// print_r("Was Successful :");
 		
 		 // print_r($wasSuccessful);
@@ -37,7 +37,7 @@ class RSSController extends AbstractActionController
         if ($wasSuccessful) {
 			// header("Content-Type: text/plain");
 			
-			$xml = $s->parseEventsIntoRSS($wasSuccessful);
+			$xml = $s->parseEventsIntoRSS($wasSuccessful, $startdate, $enddate);
 			
 			$response = $this->getResponse();
 			$response->setStatusCode(200);
