@@ -77,8 +77,7 @@ class CLService extends \AppCore\Service\AbstractService implements \CL\Service\
     private function getEvents($startdate, $enddate, $type){
             $time = time();
            
-            ob_end_flush();
-            ob_start();
+            // ob_end_flush();
 
             $parameters                     = $this -> buildHash();
 			$parameters['startdate']		= $startdate;
@@ -311,50 +310,17 @@ class CLService extends \AppCore\Service\AbstractService implements \CL\Service\
      *
      * @return bool
      */
-    public function parseEventsIntoRSS($events, $startdate, $enddate)
+    public function parseEventsIntoRSS($events, $campus)
     {
 		
-		// Do second query for campus only events
-        $parameters                     = $this -> buildHash();
-		$parameters['startdate']		= $startdate;
-		$parameters['enddate']			= $enddate;
-		// $parameters['type']				= $type;
-		$parameters['type']				= "campus only";
-		
-        // $parameters['id']               = 64382;
-       
-        // $parameters['pagesize'] = 500;
-       
-        $url = $this-> baseURL . "events";		
-		$fetchData = $this->fetchData($url, $parameters);
-		
-		// Create top of XML
-		$root = '<?xml version="1.0" encoding="ISO-8859-1"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">';
-		$root .= '<channel>';
-		$root .= '<title>RIT Events Feed</title>';
-		$root .= '<description>RIT Events</description>';
-		
-        $campusEvents        = simplexml_load_string($fetchData);
-       	if (!$campusEvents) {
-			print_r("XML DATA!\n");
-			print_r($fetchData);
-
-       	}
-		// Data ready to load into xml2array
-		// print_r($xmlData);
-		
-        // $campusEvents    = $this -> xml2array($xmlData)
-		// print_r($campusEvents);
-		
-		$campusEvents	 = $campusEvents->Items;
-		// print_r($campusEvents);
-		
 		$eventsStart = $events->Items;
+		$campusEvents	 = $campus->Items;
+		// print_r($campusEvents);
 		// print_r($eventsStart);
 		
 		$d = new \DOMDocument('1.0', 'utf-8');
 		
-		if ($eventsStart)
+		if ($eventsStart && $campusEvents)
 		{
 			
 			//create rss header
@@ -375,8 +341,6 @@ class CLService extends \AppCore\Service\AbstractService implements \CL\Service\
 			$cD->appendChild(new \DOMText('EVR Upcoming Events - Campus Center for Life'));		
 			// print_r("Start Here RSS 2");
 
-
-				
 			for($i = 0; $i < count($eventsStart->Event); $i++)
 			{
 				//create item
@@ -420,11 +384,11 @@ class CLService extends \AppCore\Service\AbstractService implements \CL\Service\
 				
 				//add start date
 				$startDate = $e->appendChild(new \DOMElement('startdate'));
-				$startDate->appendChild(new \DOMText($eventsStart->event[$i]->StartDateTime));
+				$startDate->appendChild(new \DOMText(date("M j Y g:00A", ((int)$eventsStart->Event[$i]->StartDateTime)/1000)));
 				
 				//add end date
 				$endDate = $e->appendChild(new \DOMElement('enddate'));
-				$endDate->appendChild(new \DOMText($eventsStart->Event[$i]->EndDateTime));
+				$endDate->appendChild(new \DOMText(date("M j Y g:00A", ((int)$eventsStart->Event[$i]->StartDateTime)/1000)));
 				
 				// print_r("Here");
 				// $root .= '<item>';
@@ -479,11 +443,11 @@ class CLService extends \AppCore\Service\AbstractService implements \CL\Service\
 				
 				//add start date
 				$startDate = $e->appendChild(new \DOMElement('startdate'));
-				$startDate->appendChild(new \DOMText($campusEvents->event[$i]->StartDateTime));
+				$startDate->appendChild(new \DOMText(date("M j Y g:00A", ((int)$campusEvents->Event[$i]->StartDateTime)/1000)));
 				
 				//add end date
 				$endDate = $e->appendChild(new \DOMElement('enddate'));
-				$endDate->appendChild(new \DOMText($campusEvents->Event[$i]->EndDateTime));
+				$endDate->appendChild(new \DOMText(date("M j Y g:00A", ((int)$campusEvents->Event[$i]->EndDateTime)/1000)));
 
 			}
 		}

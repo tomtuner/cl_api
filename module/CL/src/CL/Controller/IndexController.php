@@ -55,14 +55,15 @@ class IndexController extends AbstractActionController
     	// print_r($this->getRequest()->getQuery());
 		
         $sE = new \CL\Service\Entity\CLServiceEntity($this->getRequest()->getQuery());
+
         $s = new \CL\Service\CLService($sE);
-    
-        $wasSuccessful = $s->queryEventsAPI();
-		// print_r($wasSuccessful);
-        $decoded    = $s -> xml2array($wasSuccessful);
-		
-		// Put the events into an array
-        $events     = $s -> processArray($decoded);
+		$startdate = strtotime("-2 day") * 1000;
+		$enddate = strtotime("+30 day") * 1000;
+		// print_r($startdate);
+		// print_r("\n");
+		// print_r($enddate);
+        $wasSuccessful = $s->queryEventsAPI($startdate, $enddate);
+       	
        
         if ($wasSuccessful) {
 	        $result = new JsonModel(array(
