@@ -380,7 +380,7 @@ class CLService extends \AppCore\Service\AbstractService implements \CL\Service\
 
 				//add location
 				$location = $e->appendChild(new \DOMElement('location'));
-				$location->appendChild(new \DOMCdataSection($eventsStart->Event[$i]->LocationName));
+				$location->appendChild(new \DOMText($eventsStart->Event[$i]->OtherLocation));
 				
 				//add start date
 				$startDate = $e->appendChild(new \DOMElement('startdate'));
@@ -439,7 +439,7 @@ class CLService extends \AppCore\Service\AbstractService implements \CL\Service\
 
 				//add location
 				$location = $e->appendChild(new \DOMElement('location'));
-				$location->appendChild(new \DOMCdataSection($campusEvents->Event[$i]->LocationName));
+				$location->appendChild(new \DOMText($campusEvents->Event[$i]->OtherLocation));
 				
 				//add start date
 				$startDate = $e->appendChild(new \DOMElement('startdate'));
